@@ -198,8 +198,7 @@
           <span>3D Model</span><span class="hint">GLB</span>
         </button>
 
-        <!-- iBOM tab -->
-        <button data-type="html" data-src="assets/bom/visualBOM.html" data-label="Interactive BOM">
+        <button data-type="bom" data-src="assets/bom/visualBOM.html" data-label="Interactive BOM">
           <span>BOM</span><span class="hint">iBOM</span>
         </button>
       </nav>
@@ -217,12 +216,8 @@
       </div>
 
       <div class="viewerWrap">
-        <!-- PDF + HTML (BOM) -->
-        <iframe
-          id="docViewer"
-          src="assets/pdf/Board.pdf"
-          sandbox="allow-scripts allow-same-origin allow-downloads allow-forms allow-popups">
-        </iframe>
+        <!-- PDFs + BOM use this same iframe -->
+        <iframe id="docViewer" src="assets/pdf/Board.pdf"></iframe>
 
         <!-- 3D -->
         <model-viewer
@@ -255,10 +250,22 @@
     const hamburger = document.getElementById('hamburger');
     const scrim = document.getElementById('scrim');
 
-    function showDoc(src){
+    // Only needed for BOM. PDFs render better without sandbox in many browsers.
+    const BOM_SANDBOX = "allow-scripts allow-same-origin allow-downloads allow-forms allow-popups";
+
+    function showDoc(src, useSandbox){
       glbViewer.classList.add('hidden');
       docViewer.classList.remove('hidden');
-      docViewer.src = src;
+
+      if (useSandbox) {
+        docViewer.setAttribute('sandbox', BOM_SANDBOX);
+      } else {
+        docViewer.removeAttribute('sandbox');
+      }
+
+      // Force reload reliably when toggling sandbox/src
+      docViewer.src = "about:blank";
+      setTimeout(() => { docViewer.src = src; }, 0);
     }
 
     function showGLB(src){
@@ -272,19 +279,22 @@
       const btn = e.target.closest('button[data-src]');
       if (!btn) return;
 
-      // Active state
       [...nav.querySelectorAll('button')].forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
       const type = btn.dataset.type || 'pdf';
       const src = btn.dataset.src;
 
-      if (type === 'glb') showGLB(src);
-      else showDoc(src); // pdf OR html (BOM)
+      if (type === 'glb') {
+        showGLB(src);
+      } else if (type === 'bom') {
+        showDoc(src, true);   // BOM needs scripts -> sandbox enabled
+      } else {
+        showDoc(src, false);  // PDFs -> no sandbox
+      }
 
       currentLabel.textContent = btn.dataset.label || 'Viewer';
 
-      // Close sidebar on mobile
       sidebar.classList.remove('open');
       scrim.classList.remove('show');
     });
