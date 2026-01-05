@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Power Regulator</title>
 
-  <!-- 3D GLB viewer -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
@@ -28,37 +27,49 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
+      font-size: 18px; /* ~2x feel vs old */
     }
 
     .app{
       height:100vh;
       display:grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 320px 1fr; /* a bit wider since text is bigger */
     }
 
     .sidebar{
       border-right:1px solid var(--line);
       background: var(--panel);
-      padding:16px;
+      padding:18px;
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:14px;
+      overflow:auto;
     }
 
     .brand{
       display:flex;
       flex-direction:column;
-      gap:4px;
-      padding-bottom:12px;
+      gap:6px;
+      padding-bottom:14px;
       border-bottom:1px solid var(--line);
     }
-    .brand h1{ font-size:16px; margin:0; letter-spacing:0.2px; }
-    .brand p{ margin:0; font-size:12px; color:var(--muted); }
+    .brand h1{
+      font-size:22px;
+      margin:0;
+      letter-spacing:0.2px;
+      font-weight:700;
+    }
+    .brand p{
+      margin:0;
+      font-size:16px;
+      color:var(--muted);
+      line-height:1.2;
+    }
 
     .nav{
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:10px;
     }
 
     .nav button{
@@ -66,15 +77,16 @@
       border:1px solid var(--line);
       background: var(--btn);
       color: var(--text);
-      padding:10px 12px;
-      border-radius:10px;
+      padding:14px 14px;
+      border-radius:12px;
       cursor:pointer;
       text-align:left;
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:10px;
+      gap:12px;
       transition: background 120ms ease;
+      font-size:18px;
     }
     .nav button:hover{ background: var(--btnHover); }
     .nav button.active{
@@ -82,7 +94,7 @@
       box-shadow: 0 0 0 1px rgba(88,166,255,0.25) inset;
     }
     .nav .hint{
-      font-size:12px;
+      font-size:16px;
       color:var(--muted);
     }
 
@@ -90,16 +102,18 @@
       display:flex;
       flex-direction:column;
       min-width:0;
+      min-height:0;
     }
 
     .topbar{
       display:flex;
       align-items:center;
-      gap:10px;
-      padding:12px 14px;
+      gap:12px;
+      padding:14px 16px;
       border-bottom:1px solid var(--line);
       background: rgba(15,22,32,0.6);
       backdrop-filter: blur(8px);
+      flex: 0 0 auto;
     }
 
     .hamburger{
@@ -107,13 +121,14 @@
       border:1px solid var(--line);
       background: var(--btn);
       color: var(--text);
-      border-radius:10px;
-      padding:8px 10px;
+      border-radius:12px;
+      padding:10px 12px;
       cursor:pointer;
+      font-size:18px;
     }
 
     .title{
-      font-size:14px;
+      font-size:18px;
       color: var(--muted);
     }
     .title b{ color: var(--text); }
@@ -121,7 +136,7 @@
     .viewerWrap{
       flex:1;
       min-height:0;
-      padding:14px;
+      padding:12px; /* tighter so board fits */
     }
 
     iframe{
@@ -142,19 +157,20 @@
 
     .hidden{ display:none !important; }
 
-    /* ===== Board 2x2 grid ===== */
+    /* ===== Board 2x2 quadrants (fit-in-window) ===== */
     .boardGrid{
       width:100%;
-      height:100%;
+      height:100%;                 /* IMPORTANT: fills viewerWrap */
       border:1px solid var(--line);
       border-radius:14px;
       background: #0b0f14;
-      padding:12px;
+      padding:10px;                /* tighter */
       display:grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      gap:12px;
-      overflow:auto;
+      gap:10px;                    /* tighter */
+      overflow:hidden;             /* no scrolling; everything fits */
+      min-height:0;
     }
 
     .card{
@@ -176,18 +192,21 @@
       justify-content:space-between;
       gap:10px;
       background: rgba(255,255,255,0.02);
+      flex: 0 0 auto;
     }
 
     .cardHeader .label{
-      font-size:12px;
+      font-size:16px;
       color: var(--muted);
       letter-spacing:0.2px;
     }
 
     .cardBody{
-      padding:10px;
+      padding:8px;
       flex:1;
       min-height:0;
+      overflow:hidden;
+      display:flex;
     }
 
     .cardBody img{
@@ -221,7 +240,7 @@
       border:1px solid var(--line);
       background: var(--btn);
       color: var(--text);
-      padding:12px 14px;
+      padding:14px 16px;
       border-radius:12px;
       cursor:pointer;
       text-align:left;
@@ -229,13 +248,13 @@
       justify-content:space-between;
       align-items:center;
       transition: background 120ms ease;
-      font-size:14px;
+      font-size:18px;
     }
     .dlButton:hover{ background: var(--btnHover); }
     .dlHint{
-      font-size:12px;
+      font-size:16px;
       color: var(--muted);
-      line-height:1.4;
+      line-height:1.3;
     }
 
     @media (max-width: 900px){
@@ -243,8 +262,8 @@
       .sidebar{
         position:fixed;
         left:0; top:0; bottom:0;
-        width: 82vw;
-        max-width: 320px;
+        width: 86vw;
+        max-width: 360px;
         transform: translateX(-105%);
         transition: transform 180ms ease;
         z-index:50;
@@ -262,19 +281,19 @@
       .scrim.show{ display:block; }
       .viewerWrap{ padding:10px; }
 
-      /* On mobile: stack board quadrants vertically */
+      /* On mobile: stack quadrants (will scroll in wrapper naturally) */
       .boardGrid{
         grid-template-columns: 1fr;
         grid-template-rows: auto;
+        overflow:auto;
       }
-      .card{ min-height: 260px; }
+      .card{ min-height: 320px; }
     }
   </style>
 </head>
 
 <body>
   <div class="app">
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <h1>Power Regulator</h1>
@@ -304,7 +323,6 @@
       </div>
     </aside>
 
-    <!-- Main -->
     <main class="main">
       <div class="topbar">
         <button class="hamburger" id="hamburger">☰</button>
@@ -312,35 +330,28 @@
       </div>
 
       <div class="viewerWrap">
-        <!-- BOARD (2x2 quadrants) -->
+        <!-- BOARD -->
         <div id="boardGrid" class="boardGrid">
-          <!-- Q1: Front image -->
           <section class="card">
-            <div class="cardHeader">
-              <div class="label">Front</div>
-            </div>
+            <div class="cardHeader"><div class="label">Front</div></div>
             <div class="cardBody">
               <img alt="Board front" src="assets/image/front.png">
             </div>
           </section>
 
-          <!-- Q2: Layers image -->
           <section class="card">
-            <div class="cardHeader">
-              <div class="label">Layers</div>
-            </div>
+            <div class="cardHeader"><div class="label">Layers</div></div>
             <div class="cardBody">
               <img alt="Board layers" src="assets/image/Layers.PNG">
             </div>
           </section>
 
-          <!-- Q3: Embedded 3D model -->
           <section class="card">
             <div class="cardHeader">
               <div class="label">3D Preview</div>
-              <div class="label" style="opacity:0.8">drag to rotate</div>
+              <div class="label" style="opacity:0.85">idle = rotate</div>
             </div>
-            <div class="cardBody" style="padding:10px;">
+            <div class="cardBody">
               <model-viewer
                 id="boardModel"
                 src="assets/models/pcbled_driver.glb"
@@ -348,16 +359,16 @@
                 interaction-prompt="none"
                 shadow-intensity="0"
                 environment-image="neutral"
-                exposure="1">
+                exposure="1"
+                auto-rotate
+                auto-rotate-delay="0"
+                rotation-per-second="10deg">
               </model-viewer>
             </div>
           </section>
 
-          <!-- Q4: Downloads (dummy buttons for now) -->
           <section class="card">
-            <div class="cardHeader">
-              <div class="label">Downloads</div>
-            </div>
+            <div class="cardHeader"><div class="label">Downloads</div></div>
             <div class="cardBody">
               <div class="dlWrap">
                 <button class="dlButton" type="button" id="btnGerbers">
@@ -369,18 +380,17 @@
                 </button>
 
                 <div class="dlHint">
-                  These are currently dummy buttons. When you add the files (ex: <code>assets/downloads/gerbers.zip</code>),
-                  I’ll switch these to real download links.
+                  Dummy buttons for now. Add files to <code>assets/downloads/</code> and I’ll link them.
                 </div>
               </div>
             </div>
           </section>
         </div>
 
-        <!-- PDFs + BOM use this iframe -->
+        <!-- PDFs + BOM -->
         <iframe id="docViewer" class="hidden" src=""></iframe>
 
-        <!-- Fullscreen 3D tab viewer -->
+        <!-- Fullscreen 3D tab -->
         <model-viewer
           id="glbViewer"
           class="hidden"
@@ -397,15 +407,14 @@
     </main>
   </div>
 
-  <!-- Mobile overlay -->
   <div class="scrim" id="scrim"></div>
 
   <script>
     const nav = document.getElementById('nav');
 
     const boardGrid = document.getElementById('boardGrid');
-    const docViewer = document.getElementById('docViewer'); // PDFs + BOM
-    const glbViewer = document.getElementById('glbViewer'); // full 3D tab
+    const docViewer = document.getElementById('docViewer');
+    const glbViewer = document.getElementById('glbViewer');
     const currentLabel = document.getElementById('currentLabel');
 
     const sidebar = document.getElementById('sidebar');
@@ -420,7 +429,7 @@
       alert("BOM/CPL download not linked yet. Add the files to your repo and I’ll wire this up.");
     });
 
-    // Only needed for BOM. PDFs render better without sandbox in many browsers.
+    // Sandbox only for BOM
     const BOM_SANDBOX = "allow-scripts allow-same-origin allow-downloads allow-forms allow-popups";
 
     function hideAllViewers(){
@@ -441,7 +450,6 @@
       if (useSandbox) docViewer.setAttribute('sandbox', BOM_SANDBOX);
       else docViewer.removeAttribute('sandbox');
 
-      // Force reload reliably when toggling sandbox/src
       docViewer.src = "about:blank";
       setTimeout(() => { docViewer.src = src; }, 0);
     }
@@ -452,7 +460,7 @@
       glbViewer.src = src;
     }
 
-    // Navigation clicks
+    // Nav
     nav.addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
@@ -466,24 +474,54 @@
       if (type === 'board') showBoard();
       else if (type === 'glb') showGLB(src);
       else if (type === 'bom') showDoc(src, true);
-      else showDoc(src, false); // pdf/html docs
+      else showDoc(src, false);
 
       currentLabel.textContent = btn.dataset.label || 'Viewer';
 
-      // Close sidebar on mobile
       sidebar.classList.remove('open');
       scrim.classList.remove('show');
     });
 
-    // Mobile sidebar toggle
+    // Mobile sidebar
     function toggleSidebar(open){
       const shouldOpen = (open !== undefined) ? open : !sidebar.classList.contains('open');
       sidebar.classList.toggle('open', shouldOpen);
       scrim.classList.toggle('show', shouldOpen);
     }
-
     hamburger.addEventListener('click', () => toggleSidebar());
     scrim.addEventListener('click', () => toggleSidebar(false));
+
+    // ===== Idle auto-rotate logic for the embedded board model =====
+    const boardModel = document.getElementById('boardModel');
+    const IDLE_MS = 2500;
+    let idleTimer = null;
+
+    function setAutoRotate(on){
+      if (!boardModel) return;
+      if (on) boardModel.setAttribute('auto-rotate', '');
+      else boardModel.removeAttribute('auto-rotate');
+    }
+
+    function userActive(){
+      // stop rotation immediately
+      setAutoRotate(false);
+
+      // restart timer
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => setAutoRotate(true), IDLE_MS);
+    }
+
+    // Start with rotating
+    setAutoRotate(true);
+
+    // Detect interaction on model (mouse/touch/wheel/keys while focused)
+    ['pointerdown','pointermove','wheel','touchstart','touchmove'].forEach(evt => {
+      boardModel?.addEventListener(evt, userActive, {passive:true});
+    });
+
+    // Also treat leaving the model as "maybe idle soon"
+    boardModel?.addEventListener('pointerup', userActive, {passive:true});
+    boardModel?.addEventListener('touchend', userActive, {passive:true});
   </script>
 </body>
 </html>
