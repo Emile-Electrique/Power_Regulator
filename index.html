@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Power Regulator</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#0f1620;
+      --text:#e6edf3;
+      --muted:#9aa4af;
+      --line:#223042;
+      --btn:#162232;
+      --btnHover:#1c2b40;
+      --accent:#58a6ff;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Layout */
+    .app{
+      height:100vh;
+      display:grid;
+      grid-template-columns: 280px 1fr;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      border-right:1px solid var(--line);
+      background: var(--panel);
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--line);
+    }
+    .brand h1{
+      font-size:16px;
+      margin:0;
+      letter-spacing:0.2px;
+    }
+    .brand p{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .nav{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .nav button{
+      width:100%;
+      border:1px solid var(--line);
+      background: var(--btn);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      text-align:left;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      transition: background 120ms ease;
+    }
+    .nav button:hover{ background: var(--btnHover); }
+    .nav button.active{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(88,166,255,0.25) inset;
+    }
+    .nav .hint{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    /* Main */
+    .main{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      background: rgba(15,22,32,0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .hamburger{
+      display:none;
+      border:1px solid var(--line);
+      background: var(--btn);
+      color: var(--text);
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+    }
+
+    .title{
+      font-size:14px;
+      color: var(--muted);
+    }
+    .title b{ color: var(--text); }
+
+    .viewerWrap{
+      flex:1;
+      min-height:0;
+      padding:14px;
+    }
+
+    /* PDF viewer */
+    iframe{
+      width:100%;
+      height:100%;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+    }
+
+    /* Mobile */
+    @media (max-width: 900px){
+      .app{ grid-template-columns: 1fr; }
+      .sidebar{
+        position:fixed;
+        left:0; top:0; bottom:0;
+        width: 82vw;
+        max-width: 320px;
+        transform: translateX(-105%);
+        transition: transform 180ms ease;
+        z-index:50;
+        box-shadow: 20px 0 50px rgba(0,0,0,0.35);
+      }
+      .sidebar.open{ transform: translateX(0); }
+      .hamburger{ display:inline-flex; }
+      .scrim{
+        position:fixed;
+        inset:0;
+        background: rgba(0,0,0,0.45);
+        z-index:40;
+        display:none;
+      }
+      .scrim.show{ display:block; }
+      .viewerWrap{ padding:10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <h1>Power Regulator</h1>
+        <p>Project viewer (PDF)</p>
+      </div>
+
+      <nav class="nav" id="nav">
+        <button class="active" dat
