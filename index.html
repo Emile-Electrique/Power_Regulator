@@ -177,4 +177,95 @@
       </div>
 
       <nav class="nav" id="nav">
-        <button class="active" dat
+        <button class="active" data-src="assets/pdf/Board.pdf" data-label="Board PDF">
+          <span>Board</span><span class="hint">PDF</span>
+        </button>
+
+        <button data-src="assets/pdf/Schematic.pdf" data-label="Schematic PDF">
+          <span>Schematic</span><span class="hint">PDF</span>
+        </button>
+      </nav>
+
+      <div class="hint" style="margin-top:auto;">
+        Tip: add more items by copying a button and changing <code>data-src</code>.
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <div class="topbar">
+        <button class="hamburger" id="hamburger">☰</button>
+        <div class="title">Viewing: <b id="currentLabel">Board PDF</b></div>
+      </div>
+
+      <div class="viewerWrap">
+        <iframe id="viewer" src="assets/pdf/Board.pdf"></iframe>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile overlay -->
+  <div class="scrim" id="scrim"></div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    const viewer = document.getElementById('viewer');
+    const currentLabel = document.getElementById('currentLabel');
+
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const scrim = document.getElementById('scrim');
+
+    // Navigation clicks
+    nav.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-src]');
+      if (!btn) return;
+
+      // set active state
+      [...nav.querySelectorAll('button')].forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // load PDF
+      viewer.src = btn.dataset.src;
+      currentLabel.textContent = btn.dataset.label || 'Document';
+
+      // close sidebar on mobile
+      sidebar.classList.remove('open');
+      scrim.classList.remove('show');
+    });
+
+    // Mobile sidebar toggle
+    function toggleSidebar(open){
+      const shouldOpen = (open !== undefined) ? open : !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', shouldOpen);
+      scrim.classList.toggle('show', shouldOpen);
+    }
+
+    hamburger.addEventListener('click', () => toggleSidebar());
+    scrim.addEventListener('click', () => toggleSidebar(false));
+
+    // Optional: support URL hashes like #board / #schematic
+    const routes = {
+      board: {src:"assets/pdf/Board.pdf", label:"Board PDF", index:0},
+      schematic: {src:"assets/pdf/Schematic.pdf", label:"Schematic PDF", index:1}
+    };
+
+    function applyHash(){
+      const key = (location.hash || "#board").slice(1).toLowerCase();
+      const r = routes[key];
+      if (!r) return;
+      const btn = nav.querySelectorAll('button')[r.index];
+      if (btn){
+        btn.click();
+      } else {
+        viewer.src = r.src;
+        currentLabel.textContent = r.label;
+      }
+    }
+
+    window.addEventListener('hashchange', applyHash);
+    // If you want hash routing enabled, uncomment:
+    // applyHash();
+  </script>
+</body>
+</html>
