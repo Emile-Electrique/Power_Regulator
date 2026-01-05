@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Power Regulator</title>
+
+  <!-- 3D GLB viewer -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
   <style>
     :root{
       --bg:#0b0f14;
@@ -25,14 +29,12 @@
       color: var(--text);
     }
 
-    /* Layout */
     .app{
       height:100vh;
       display:grid;
       grid-template-columns: 280px 1fr;
     }
 
-    /* Sidebar */
     .sidebar{
       border-right:1px solid var(--line);
       background: var(--panel);
@@ -91,7 +93,6 @@
       color:var(--muted);
     }
 
-    /* Main */
     .main{
       display:flex;
       flex-direction:column;
@@ -130,7 +131,6 @@
       padding:14px;
     }
 
-    /* PDF viewer */
     iframe{
       width:100%;
       height:100%;
@@ -139,7 +139,16 @@
       background:#fff;
     }
 
-    /* Mobile */
+    model-viewer{
+      width:100%;
+      height:100%;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: #0b0f14;
+    }
+
+    .hidden{ display:none !important; }
+
     @media (max-width: 900px){
       .app{ grid-template-columns: 1fr; }
       .sidebar{
@@ -173,16 +182,20 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <h1>Power Regulator</h1>
-        <p>Project viewer (PDF)</p>
+        <p>Project viewer (PDF + 3D)</p>
       </div>
 
       <nav class="nav" id="nav">
-        <button class="active" data-src="assets/pdf/Board.pdf" data-label="Board PDF">
+        <button class="active" data-type="pdf" data-src="assets/pdf/Board.pdf" data-label="Board PDF">
           <span>Board</span><span class="hint">PDF</span>
         </button>
 
-        <button data-src="assets/pdf/Schematic.pdf" data-label="Schematic PDF">
+        <button data-type="pdf" data-src="assets/pdf/Schematic.pdf" data-label="Schematic PDF">
           <span>Schematic</span><span class="hint">PDF</span>
+        </button>
+
+        <button data-type="glb" data-src="assets/models/pcbled_driver.glb" data-label="3D PCB Model">
+          <span>3D Model</span><span class="hint">GLB</span>
         </button>
       </nav>
 
@@ -199,7 +212,18 @@
       </div>
 
       <div class="viewerWrap">
-        <iframe id="viewer" src="assets/pdf/Board.pdf"></iframe>
+        <!-- PDF -->
+        <iframe id="pdfViewer" src="assets/pdf/Board.pdf"></iframe>
+
+        <!-- 3D -->
+        <model-viewer
+          id="glbViewer"
+          class="hidden"
+          src=""
+          camera-controls
+          auto-rotate
+          shadow-intensity="1">
+        </model-viewer>
       </div>
     </main>
   </div>
@@ -209,27 +233,45 @@
 
   <script>
     const nav = document.getElementById('nav');
-    const viewer = document.getElementById('viewer');
+
+    const pdfViewer = document.getElementById('pdfViewer');
+    const glbViewer = document.getElementById('glbViewer');
     const currentLabel = document.getElementById('currentLabel');
 
     const sidebar = document.getElementById('sidebar');
     const hamburger = document.getElementById('hamburger');
     const scrim = document.getElementById('scrim');
 
+    function showPDF(src){
+      glbViewer.classList.add('hidden');
+      pdfViewer.classList.remove('hidden');
+      pdfViewer.src = src;
+    }
+
+    function showGLB(src){
+      pdfViewer.classList.add('hidden');
+      glbViewer.classList.remove('hidden');
+      glbViewer.src = src;
+    }
+
     // Navigation clicks
     nav.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-src]');
       if (!btn) return;
 
-      // set active state
+      // Active state
       [...nav.querySelectorAll('button')].forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // load PDF
-      viewer.src = btn.dataset.src;
-      currentLabel.textContent = btn.dataset.label || 'Document';
+      const type = btn.dataset.type || 'pdf';
+      const src = btn.dataset.src;
 
-      // close sidebar on mobile
+      if (type === 'glb') showGLB(src);
+      else showPDF(src);
+
+      currentLabel.textContent = btn.dataset.label || 'Viewer';
+
+      // Close sidebar on mobile
       sidebar.classList.remove('open');
       scrim.classList.remove('show');
     });
@@ -243,29 +285,6 @@
 
     hamburger.addEventListener('click', () => toggleSidebar());
     scrim.addEventListener('click', () => toggleSidebar(false));
-
-    // Optional: support URL hashes like #board / #schematic
-    const routes = {
-      board: {src:"assets/pdf/Board.pdf", label:"Board PDF", index:0},
-      schematic: {src:"assets/pdf/Schematic.pdf", label:"Schematic PDF", index:1}
-    };
-
-    function applyHash(){
-      const key = (location.hash || "#board").slice(1).toLowerCase();
-      const r = routes[key];
-      if (!r) return;
-      const btn = nav.querySelectorAll('button')[r.index];
-      if (btn){
-        btn.click();
-      } else {
-        viewer.src = r.src;
-        currentLabel.textContent = r.label;
-      }
-    }
-
-    window.addEventListener('hashchange', applyHash);
-    // If you want hash routing enabled, uncomment:
-    // applyHash();
   </script>
 </body>
 </html>
